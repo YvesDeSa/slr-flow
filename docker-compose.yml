@@ -11,7 +11,7 @@ services:
       - mongo_data:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=yves
-      - MONGO_INITDB_ROOT_PASSWORD=y@v35sslr
+      - MONGO_INITDB_ROOT_PASSWORD=yv35sslr
 
   n8n:
     image: n8nio/n8n:latest
@@ -34,12 +34,16 @@ services:
       dockerfile: Dockerfile
     container_name: slr_api
     restart: always
+    command: sh -c "npm install && npm run start:dev"
     ports:
       - "3000:3000"
     depends_on:
       - mongodb
+    volumes:
+      - ./api:/usr/src/app 
+      - /usr/src/app/node_modules    
     environment:
-      - MONGO_URI=mongodb://yves:y@v35sslr@mongodb:27017/slr_flow?authSource=admin
+      - MONGO_URI=mongodb://yves:yv35sslr@mongodb:27017/slr_flow?authSource=admin
 
 volumes:
   mongo_data:
