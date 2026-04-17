@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: slr_mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=yves
+      - MONGO_INITDB_ROOT_PASSWORD=y@v35sslr
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: slr_n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/
+    volumes:
+      - ./n8n-data:/home/node/.n8n
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: slr_api
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URI=mongodb://yves:y@v35sslr@mongodb:27017/slr_flow?authSource=admin
+
+volumes:
+  mongo_data:
+  n8n_data: 
