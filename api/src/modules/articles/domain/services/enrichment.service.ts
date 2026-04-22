@@ -18,11 +18,15 @@ export class EnrichmentService {
         })
       );
 
+      console.log('Dados enriquecidos recebidos:', data);
+      
       return {
         abstract: data.abstract,
         keywords: data.fieldsOfStudy || [],
-        title: data.title 
+        title: data.title,
+        year: data.year
       };
+
     } catch (error) {
       this.logger.error(`Erro ao buscar dados para o DOI ${doi}: ${error}`);
       return null;
