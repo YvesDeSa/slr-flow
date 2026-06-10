@@ -88,7 +88,7 @@ export class ArticlesController {
     const updated = await this.articleModel.findByIdAndUpdate(
       id,
       { status: body.status },
-      { new: true },
+      { returnDocument: "after" },
     );
 
     if (!updated) {
