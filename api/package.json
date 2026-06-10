@@ -25,6 +25,8 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/mongoose": "^11.0.4",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.4.4",
+    "@scalar/nestjs-api-reference": "^1.2.2",
     "@types/minio": "^7.1.0",
     "axios": "^1.15.0",
     "bibtex-parse-js": "^0.0.24",
