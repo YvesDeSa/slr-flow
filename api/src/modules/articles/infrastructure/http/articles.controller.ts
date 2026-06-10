@@ -1,38 +1,63 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
-import { EnrichmentService } from '../../domain/services/enrichment.service';
-import { BibtexParser } from '../parsers/bibtex.parser';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Patch,
+  Param,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { SyncArticleUseCase } from "../../application/use-cases/sync-article.use-case";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { Article, ArticleDocument } from "../../domain/schemas/article.schema";
 
-@Controller('articles')
+@Controller("articles")
 export class ArticlesController {
-
   constructor(
-    private readonly enrichmentService: EnrichmentService,
-  ) { }
+    private readonly syncArticleUseCase: SyncArticleUseCase,
+    @InjectModel(Article.name) private articleModel: Model<ArticleDocument>,
+  ) {}
 
-  @Post('sync')
+  @Post("sync")
   @HttpCode(HttpStatus.CREATED)
-  async syncFromN8n(@Body() body: { doi: string }) {
-    const finalDoi = body.doi;
-    let extraData = { abstract: null };
+  async syncByDoi(@Body() body: { doi: string }) {
+    if (!body.doi) {
+      throw new BadRequestException("DOI é obrigatório");
+    }
+    return await this.syncArticleUseCase.execute(body.doi);
+  }
 
-    if (!finalDoi)
-      console.log('DOI não fornecido, tentando extrair do BibTeX...');
+  @Get()
+  async findAll() {
+    return await this.articleModel.find().sort({ createdAt: -1 }).exec();
+  }
 
-    const enriched = await this.enrichmentService.fetchByDoi(finalDoi);
-    
-    if (enriched?.abstract) {
-      extraData.abstract = enriched.abstract;
+  @Patch(":id/status")
+  async updateStatus(
+    @Param("id") id: string,
+    @Body() body: { status: string },
+  ) {
+    const validStatuses = ["PENDING", "READ", "ACCEPTED", "REJECTED"];
+    if (!validStatuses.includes(body.status)) {
+      throw new BadRequestException(
+        `Status inválido. Use um de: ${validStatuses.join(", ")}`,
+      );
     }
 
-    const articleToSave = {
-      doi: finalDoi,
-      title: enriched?.title,
-      year: enriched?.year,
-      status: 'PENDING_REVIEW'
-    };
+    const updated = await this.articleModel.findByIdAndUpdate(
+      id,
+      { status: body.status },
+      { new: true },
+    );
 
-    console.log('Objeto pronto para o Banco:', articleToSave);
+    if (!updated) {
+      throw new NotFoundException(`Artigo com ID ${id} não encontrado`);
+    }
 
-    return articleToSave;
+    return updated;
   }
 }
