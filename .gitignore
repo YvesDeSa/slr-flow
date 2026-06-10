@@ -1,0 +1,36 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+build/
+
+# NestJS
+/api/dist
+/api/node_modules
+
+# Environment
+.env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# n8n - Essential Only
+# Ignoramos logs, arquivos temporários do SQLite e journal
+n8n-data/*.log
+n8n-data/database.sqlite-shm
+n8n-data/database.sqlite-wal
+n8n-data/crash.journal
+
+# Opcional: Se você quiser ignorar o banco de dados principal (que é binário e pesado)
+# e salvar apenas as configurações, descomente a linha abaixo:
+# n8n-data/database.sqlite
+
+# Husky
+.husky/_
