@@ -1,14 +1,17 @@
-import { Module } from '@nestjs/common';
-import { ArticlesController } from './infrastructure/http/articles.controller';
-import { EnrichmentService } from './domain/services/enrichment.service';
-import { HttpModule } from '@nestjs/axios/dist/http.module';
+import { Module } from "@nestjs/common";
+import { MongooseModule } from "@nestjs/mongoose";
+import { ArticlesController } from "./infrastructure/http/articles.controller";
+import { Article, ArticleSchema } from "./domain/schemas/article.schema";
+import { SyncArticleUseCase } from "./application/use-cases/sync-article.use-case";
+import { SemanticScholarService } from "./domain/services/semantic-scholar.service";
+import { StorageService } from "./infrastructure/storage/storage.service";
 
 @Module({
   imports: [
-    HttpModule
+    MongooseModule.forFeature([{ name: Article.name, schema: ArticleSchema }]),
   ],
   controllers: [ArticlesController],
-  providers: [EnrichmentService],
-  exports: [EnrichmentService],
+  providers: [SyncArticleUseCase, SemanticScholarService, StorageService],
+  exports: [SyncArticleUseCase],
 })
 export class ArticlesModule {}
